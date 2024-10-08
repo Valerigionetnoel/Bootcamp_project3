@@ -1,10 +1,10 @@
 import { useState } from "react";
-import {useMutation} from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { ADD_USER } from '../utils/mutations';
 import Auth from '../utils/auth';
 import { StyledLogin } from "../styled/Login.styled";
 
-const SignupForm = () => {
+const SignupForm = ({ onSignup }) => { // Accepting onSignup as a prop
     const [formState, setFormState] = useState({
         username: '',
         email: '',
@@ -24,30 +24,30 @@ const SignupForm = () => {
         event.preventDefault();
         try {
             const { data } = await addUser({
-                variables: { ...formState},
+                variables: { ...formState },
             });
 
             Auth.login(data.addUser.token);
+            onSignup(formState); // Call onSignup with formState to handle signup
         } catch (err) {
             console.error(err);
         }
     };
 
     return ( 
-    <div>
-        
-        <StyledLogin onSubmit={handleFormSubmit}>
-        <h3>Sign Up</h3>
-            <label>Username: </label>
-            <input type="text" value={formState.username} name='username' onChange={handleChange} required />
-            <label>Email: </label>
-            <input type="text" value={formState.email} name='email' onChange={handleChange} required/>
-            <label>Password:</label>
-            <input type="password" value={formState.password} name='password' onChange={handleChange} required/>
-            <button className="button">Submit</button>
-        </StyledLogin>
-
-    </div> );
+        <div>
+            <StyledLogin onSubmit={handleFormSubmit}>
+                <h3>Sign Up</h3>
+                <label>Username: </label>
+                <input type="text" value={formState.username} name='username' onChange={handleChange} required />
+                <label>Email: </label>
+                <input type="text" value={formState.email} name='email' onChange={handleChange} required />
+                <label>Password:</label>
+                <input type="password" value={formState.password} name='password' onChange={handleChange} required />
+                <button className="button">Submit</button>
+            </StyledLogin>
+        </div>
+    );
 }
- 
+
 export default SignupForm;

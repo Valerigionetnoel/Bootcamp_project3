@@ -1,48 +1,36 @@
-import { useState } from "react";
-import { LOGIN_USER} from '../utils/mutations';
-import {useMutation} from '@apollo/client';
-import Auth from '../utils/auth';
-import { StyledLogin } from "../styled/Login.styled";
+import React from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
-const LoginForm = () => {
-    const [formState, setFormState] = useState({ email: '', password: '' });
-    const [login] = useMutation(LOGIN_USER);
+const LoginForm = ({ onLogin }) => {
+  const LoginSchema = Yup.object().shape({
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    password: Yup.string().min(6, "Password too short").required("Password is required"),
+  });
 
-    const handleChange = (event) => {
-        const { name, value } = event.target;
-
-        setFormState({
-            ...formState,
-            [name]: value,
-        });
-    };
-    const handleFormSubmit = async (event) => {
-        event.preventDefault();
-        console.log(formState);
-        try {
-            const { data } = await login({
-                variables: { ...formState },
-            });
-            Auth.login(data.login.token);
-        } catch (err) {
-            console.error(err);
-        }
-        setFormState({
-            email: '',
-            password: '',
-        });
-    };
-    return (
-    <div>
-      <StyledLogin onSubmit={handleFormSubmit}>
-        <h3>Login</h3>
-            <label>Email: </label>
-            <input type="text" value={formState.email} name='email' onChange={handleChange} required/>
+  return (
+    <Formik
+      initialValues={{ email: "", password: "" }}
+      validationSchema={LoginSchema}
+      onSubmit={onLogin} // Pass the onLogin function as the onSubmit handler
+    >
+      {() => (
+        <Form>
+          <div>
+            <label>Email:</label>
+            <Field name="email" type="email" />
+            <ErrorMessage name="email" component="div" />
+          </div>
+          <div>
             <label>Password:</label>
-            <input type="password" value={formState.password} name='password' onChange={handleChange} required/>
-            <button className="button">Submit</button>
-        </StyledLogin>
-    </div>
-);
-    }
+            <Field name="password" type="password" />
+            <ErrorMessage name="password" component="div" />
+          </div>
+          <button type="submit">Login</button>
+        </Form>
+      )}
+    </Formik>
+  );
+};
+
 export default LoginForm;
